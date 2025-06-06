@@ -1,3 +1,4 @@
+
 import '../db/repositories/expense_repository.dart';
 import '../models/expense.dart';
 
@@ -75,4 +76,19 @@ class ExpenseController {
       return 0.0;
     }
   }
+
+
+Future<double> getTotalByType(int userId, String type) async {
+  try {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = DateTime(now.year, now.month + 1, 0);
+    
+    return await _expenseRepository.getTotalByType(type, userId, startOfMonth, endOfMonth);
+  } catch (e) {
+    print('Lỗi khi tính tổng theo loại: $e');
+    return 0.0;
+  }
+}
+
 }

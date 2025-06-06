@@ -2,6 +2,8 @@ import '../database_helper.dart';
 import '../../models/expense.dart';
 
 class ExpenseRepository {
+
+  
   // Thêm một expense mới vào database
   // Trả về ID của bản ghi mới nếu thành công, -1 nếu thất bại
   Future<int> insertExpense(Expense expense) async {
@@ -88,4 +90,16 @@ class ExpenseRepository {
       return 0.0;
     }
   }
+
+  Future<double> getTotalByType(String type, int userId, DateTime startOfMonth, DateTime endOfMonth) async {
+  final db = await DatabaseHelper.database;
+  
+  final result = await db.rawQuery('''
+    SELECT SUM(amount) as total FROM expenses
+    WHERE type = ? AND user_id = ? AND date BETWEEN ? AND ?
+  ''', [type, userId, startOfMonth.toIso8601String(), endOfMonth.toIso8601String()]);
+
+  return result.first['total'] == null ? 0.0 : result.first['total'] as double;
+  }
+
 }

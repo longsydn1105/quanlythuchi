@@ -33,6 +33,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         amount REAL,
+        type TEXT,  
         category TEXT,
         date TEXT,
         note TEXT,

@@ -2,6 +2,7 @@ class Expense {
   final int? id;
   final int userId;
   final double amount;
+  final String type;
   final String category;
   final String date;
   final String note;
@@ -10,6 +11,7 @@ class Expense {
     this.id,
     required this.userId,
     required this.amount,
+    required this.type,
     required this.category,
     required this.date,
     required this.note,
@@ -20,6 +22,7 @@ class Expense {
         id: json['id'],
         userId: json['user_id'],
         amount: json['amount'],
+        type: json['type'],
         category: json['category'],
         date: json['date'],
         note: json['note'],
@@ -30,6 +33,7 @@ class Expense {
         'id': id,
         'user_id': userId,
         'amount': amount,
+        'type': type,
         'category': category,
         'date': date,
         'note': note,
