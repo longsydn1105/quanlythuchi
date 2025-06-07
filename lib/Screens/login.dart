@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quanlythuchi/Screens/signup.dart';
 import 'package:flutter_quanlythuchi/Screens/dashboard_screen.dart';
+import 'package:flutter_quanlythuchi/controllers/user_controller.dart';
+import 'package:flutter_quanlythuchi/db/repositories/user_repository.dart';
+
+final UserController userController = UserController(UserRepository());
 
 class LoginPage extends StatelessWidget {
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  final UserController userController = UserController(UserRepository());
 
   LoginPage({super.key});
 
-  void _login(BuildContext context) {
-    // TODO: Validate from DB
+  void login(BuildContext context) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => DashboardScreen()),
@@ -25,8 +29,8 @@ class LoginPage extends StatelessWidget {
         child: Column(
           children: [
             TextField(
-              controller: _emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: 'Username'),
             ),
             TextField(
               controller: _passwordController,
@@ -35,7 +39,22 @@ class LoginPage extends StatelessWidget {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _login(context),
+              onPressed: () async {
+                String username = _usernameController.text.trim();
+                String password = _passwordController.text.trim();
+                bool isValid = await userController.authenticate(username, password);
+
+                if (isValid) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => DashboardScreen()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Sai tài khoản hoặc mật khẩu')),
+                  );
+                }
+              },
               child: Text('Đăng nhập'),
             ),
             TextButton(

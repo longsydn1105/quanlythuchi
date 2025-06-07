@@ -1,27 +1,30 @@
-import '../database_helper.dart';
+import 'package:hive/hive.dart';
 import '../../models/user.dart';
 
 class UserRepository {
-  // Thêm user mới vào database, trả về id nếu thành công hoặc -1 nếu thất bại
-  Future<int> insertUser(User user) async {
-    try {
-      final db = await DatabaseHelper.database;
-      return await db.insert('users', user.toMap());
-    } catch (e) {
-      print('Lỗi khi thêm user: $e');
-      return -1;
-    }
+  final String _boxName = 'usersBox';
+
+  Future<Box<User>> _getBox() async {
+    return await Hive.openBox<User>(_boxName);
   }
 
-  // Lấy toàn bộ danh sách users từ database
+  Future<int> insertUser(User user) async {
+    final box = await _getBox();
+    return await box.add(user);
+  }
+
   Future<List<User>> getAllUsers() async {
-    try {
-      final db = await DatabaseHelper.database;
-      final List<Map<String, dynamic>> maps = await db.query('users');
-      return maps.map((e) => User.fromMap(e)).toList();
-    } catch (e) {
-      print('Lỗi khi lấy danh sách users: $e');
-      return [];
-    }
+    final box = await _getBox();
+    return box.values.toList();
+  }
+
+  Future<void> deleteUser(int key) async {
+    final box = await _getBox();
+    await box.delete(key);
+  }
+
+  Future<void> updateUser(int key, User user) async {
+    final box = await _getBox();
+    await box.put(key, user);
   }
 }

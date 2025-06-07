@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quanlythuchi/models/user.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'Screens/login.dart';
 import 'Screens/signup.dart';
 import 'Screens/welcome.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Hive.initFlutter();
+  Hive.registerAdapter(UserAdapter());
+  
   runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
