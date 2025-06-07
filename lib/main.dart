@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quanlythuchi/Screens/welcome.dart';
+import 'package:flutter_quanlythuchi/models/expense.dart';
 import 'Screens/login.dart';
-import 'Screens/signup.dart';
-import 'Screens/welcome.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Khởi tạo Hive
+  final appDocumentDir = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(appDocumentDir.path);
+  
+  // Đăng ký adapter
+  Hive.registerAdapter(ExpenseAdapter());
+  
+  // Mở box
+  await Hive.openBox<Expense>('expenses');
+
   runApp(const MyApp());
 }
 
@@ -34,7 +46,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: RegisterPage(),
+      home: LoginPage(),
       // home: (),
       // home: (),
     );

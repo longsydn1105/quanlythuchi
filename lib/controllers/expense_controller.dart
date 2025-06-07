@@ -42,12 +42,12 @@ class ExpenseController {
   // - Nhận đối tượng Expense cần cập nhật
   // - Trả về số bản ghi được cập nhật (thường là 1)
   // - Trả về 0 nếu có lỗi
-  Future<int> updateExpense(Expense expense) async {
+  Future<bool> updateExpense(Expense expense) async {
     try {
       return await _expenseRepository.updateExpense(expense);
     } catch (e) {
       print('Lỗi khi cập nhật expense: $e');
-      return 0;
+      return false;
     }
   }
 
@@ -55,12 +55,12 @@ class ExpenseController {
   // - Nhận expenseId làm tham số
   // - Trả về số bản ghi bị xóa (thường là 1)
   // - Trả về 0 nếu có lỗi
-  Future<int> deleteExpense(int expenseId) async {
+  Future<bool> deleteExpense(int expenseId) async {
     try {
       return await _expenseRepository.deleteExpense(expenseId);
     } catch (e) {
       print('Lỗi khi xóa expense: $e');
-      return 0;
+      return false;
     }
   }
 
