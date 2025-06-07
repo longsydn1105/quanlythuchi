@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'screens/Welcome/welcome_screen.dart';
-import 'screens/dashboard_screen.dart';
-void main() {
+import 'package:flutter_quanlythuchi/Screens/welcome.dart';
+import 'Screens/login.dart';
+import 'Screens/signup.dart';
+import 'Screens/welcome.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -31,7 +34,9 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const DashboardScreen(),
+      home: RegisterPage(),
+      // home: (),
+      // home: (),
     );
   }
 }
