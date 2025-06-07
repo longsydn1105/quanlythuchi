@@ -3,7 +3,6 @@ import 'lichsugiaodich/add_transaction_page.dart';
 import 'lichsugiaodich/transaction_list_page.dart';
 
 
-
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 

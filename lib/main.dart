@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quanlythuchi/Screens/welcome.dart';
 import 'Screens/login.dart';
 import 'Screens/signup.dart';
 import 'Screens/welcome.dart';
