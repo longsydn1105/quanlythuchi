@@ -15,7 +15,7 @@ class UserController {
   // - Ném exception nếu có lỗi
   Future<int> registerUser(String username, String password) async {
     try {
-      if (username.isEmpty || password.isEmpty) {
+      if (username.isEmpty || password.isEmpty) { 
         throw Exception('Username và password không được để trống');
       }
       
