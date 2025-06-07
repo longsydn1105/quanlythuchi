@@ -1,68 +1,123 @@
 import 'package:flutter/material.dart';
-import '../controllers/expense_controller.dart';
 
-class DashboardScreen extends StatefulWidget {
-  final ExpenseController expenseController;
-
-  const DashboardScreen({Key? key, required this.expenseController}) : super(key: key);
-
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  double _income = 0;
-  double _expense = 0;
-  double _balance = 0;
-  int userId = 1; // Tạm hard-code ID user
-
-  @override
-  void initState() {
-    super.initState();
-    _loadData();
-  }
-
-  Future<void> _loadData() async {
-    final income = await widget.expenseController.getTotalByType(userId, 'thu');
-    final expense = await widget.expenseController.getTotalByType(userId, 'chi' );
-    final balance = income - expense;
-
-    setState(() {
-      _income = income;
-      _expense = expense;
-      _balance = balance;
-    });
-  }
+class DashboardScreen extends StatelessWidget {
+  const DashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bảng điều khiển'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildCard('Thu nhập', _income, Colors.green),
-            _buildCard('Chi tiêu', _expense, Colors.red),
-            _buildCard('Số dư', _balance, Colors.blue),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header
+              Container(
+                width: double.infinity,
+                color: Colors.blue.shade900,
+                padding: const EdgeInsets.all(16),
+                child: const Center(
+                  child: Text(
+                    'Quản lý chi tiêu',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              const Text(
+                'Tháng 6',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+
+              const SizedBox(height: 8),
+
+              // Thu - Chi - Dư
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 200),
+                      child: _InfoColumn(label: 'Thu', value: '50.000VND'),
+                    ),
+                    const _InfoColumn(label: 'Chi', value: '30.000VND'),
+                    const Padding(
+                      padding: EdgeInsets.only(right: 200),
+                      child: _InfoColumn(label: 'Dư', value: '20.000VND'),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Buttons
+              Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                alignment: WrapAlignment.center,
+                children: [
+                  _buildLargeButton(context, 'Thêm giao dịch'),
+                  _buildLargeButton(context, 'Báo cáo thống kê'),
+                  _buildLargeButton(context, 'Danh sách giao dịch'),
+                  _buildLargeButton(context, 'Cài đặt cá nhân'),
+                  _buildLargeButton(context, 'Danh mục chi tiêu'),
+                  _buildLargeButton(context, 'Đăng xuất'),
+                ],
+              ),
+
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCard(String title, double amount, Color color) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      elevation: 3,
-      child: ListTile(
-        leading: Icon(Icons.monetization_on, color: color),
-        title: Text(title),
-        trailing: Text('${amount.toStringAsFixed(0)} đ', style: TextStyle(fontSize: 18)),
+  Widget _buildLargeButton(BuildContext context, String title) {
+    return SizedBox(
+      width: 400,
+      height: 150,
+      child: OutlinedButton(
+        onPressed: () {
+          // TODO: thêm điều hướng ở đây
+        },
+        style: OutlinedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          side: const BorderSide(color: Colors.black),
+        ),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
       ),
+    );
+  }
+}
+
+class _InfoColumn extends StatelessWidget {
+  final String label;
+  final String value;
+  const _InfoColumn({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(value),
+      ],
     );
   }
 }
