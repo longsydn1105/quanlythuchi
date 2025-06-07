@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'lichsugiaodich/add_transaction_page.dart';
+import 'lichsugiaodich/transaction_list_page.dart';
+
+
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -88,7 +92,19 @@ class DashboardScreen extends StatelessWidget {
       height: 150,
       child: OutlinedButton(
         onPressed: () {
-          // TODO: thêm điều hướng ở đây
+          if (title == 'Thêm giao dịch') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+            );
+          } else if (title == 'Danh sách giao dịch') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TransactionListPage()),
+            );
+          } else {
+            // TODO: Xử lý các mục còn lại
+          }
         },
         style: OutlinedButton.styleFrom(
           shape: RoundedRectangleBorder(
@@ -104,6 +120,8 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
+
+
 }
 
 class _InfoColumn extends StatelessWidget {
@@ -120,4 +138,6 @@ class _InfoColumn extends StatelessWidget {
       ],
     );
   }
+  
 }
+
