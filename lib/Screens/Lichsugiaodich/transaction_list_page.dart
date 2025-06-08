@@ -1,32 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'add_transaction_page.dart';
-
-class Transaction {
-  double amount;
-  String type;
-  String category;
-  String note;
-  DateTime date;
-
-  Transaction({
-    required this.amount,
-    required this.type,
-    required this.category,
-    required this.note,
-    required this.date,
-  });
-
-  Transaction copy() {
-    return Transaction(
-      amount: amount,
-      type: type,
-      category: category,
-      note: note,
-      date: date,
-    );
-  }
-}
+import '/models/transaction.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({super.key});
@@ -37,22 +12,24 @@ class TransactionListPage extends StatefulWidget {
 
 class _TransactionListPageState extends State<TransactionListPage> {
   final List<Transaction> _transactions = [];
-
+  
   final NumberFormat _currencyFormat = NumberFormat('#,###', 'vi_VN');
 
   void _navigateToAddTransaction({Transaction? existingTransaction, int? index}) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AddTransactionPage(transaction: existingTransaction?.copy()),
+        builder: (context) => AddTransactionPage(transaction: existingTransaction),
       ),
     );
 
     if (result != null && result is Transaction) {
       setState(() {
         if (index != null) {
+          // Chỉnh sửa
           _transactions[index] = result;
         } else {
+          // Thêm mới
           _transactions.add(result);
         }
       });
@@ -146,7 +123,7 @@ class _TransactionListPageState extends State<TransactionListPage> {
             ),
           ),
 
-          // Danh sách giao dịch (chiếm phần còn lại)
+          // Danh sách giao dịch
           Expanded(
             child: _transactions.isEmpty
                 ? Center(child: Text('Chưa có giao dịch nào'))
@@ -187,7 +164,10 @@ class _TransactionListPageState extends State<TransactionListPage> {
                               SizedBox(width: 8),
                               IconButton(
                                 icon: Icon(Icons.edit, color: Colors.teal),
-                                onPressed: () => _navigateToAddTransaction(existingTransaction: tx, index: index),
+                                onPressed: () => _navigateToAddTransaction(
+                                  existingTransaction: tx,
+                                  index: index,
+                                ),
                               ),
                               IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red),

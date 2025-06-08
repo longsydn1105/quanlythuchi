@@ -1,4 +1,4 @@
-import '../db//repositories/user_repository.dart';
+import '../../db/repositories/user_repository.dart';
 import '../models/user.dart';
 
 class UserController {

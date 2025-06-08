@@ -1,5 +1,5 @@
 import '../database_helper.dart';
-import '../../models/user.dart';
+import '../../../models/user.dart';
 
 class UserRepository {
   // Thêm user mới vào database, trả về id nếu thành công hoặc -1 nếu thất bại

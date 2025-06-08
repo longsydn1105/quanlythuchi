@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'transaction_list_page.dart';
+import '/controllers/expense_controller.dart';
+import '/controllers/user_controller.dart';
+import 'package:get/get.dart';
+import '/models/transaction.dart';
+
 
 class AddTransactionPage extends StatefulWidget {
   final Transaction? transaction;
@@ -12,8 +16,10 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
+  final expenseController = Get.find<ExpenseController>();
+  final userController = Get.find<UserController>(); // nếu cần dùng
+    double? _amount;
+    String _note = '';
 
   DateTime _selectedDate = DateTime.now();
   String _transactionType = 'Chi';
@@ -33,8 +39,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     super.initState();
     final tx = widget.transaction;
     if (tx != null) {
-      _amountController.text = tx.amount.toString();
-      _noteController.text = tx.note;
+      _amount = tx.amount;
+      _note = tx.note;
       _selectedDate = tx.date;
       _transactionType = tx.type;
       _selectedCategory = tx.category;
@@ -53,9 +59,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
-  void _saveTransaction() {
-    final amount = double.tryParse(_amountController.text.trim());
-    final note = _noteController.text.trim();
+  Future<void> _saveTransaction() async {
+      final amount = _amount;
+      final note = _note;
 
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,15 +70,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       return;
     }
 
-    final newTransaction = Transaction(
-      amount: amount,
-      type: _transactionType,
-      category: _selectedCategory,
-      note: note,
-      date: _selectedDate,
-    );
+      final newTransaction = Transaction(
+        amount: _amount!,
+        type: _transactionType,
+        category: _selectedCategory,
+        note: _note,
+        date: _selectedDate,
+      );
 
-    Navigator.pop(context, newTransaction);
+        await expenseController.addTransaction(newTransaction);
+        Navigator.pop(context, newTransaction);
+
   }
 
   @override
@@ -85,15 +93,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            TextField(
-              controller: _amountController,
+            TextFormField(
+              initialValue: _amount?.toString(),
               decoration: InputDecoration(
                 labelText: 'Số tiền',
                 prefixIcon: Icon(Icons.attach_money),
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.number,
+              onChanged: (value) => _amount = double.tryParse(value),
             ),
+
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               value: _transactionType,
@@ -123,14 +133,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
               },
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _noteController,
-              decoration: InputDecoration(
-                labelText: 'Ghi chú',
-                prefixIcon: Icon(Icons.note),
-                border: OutlineInputBorder(),
-              ),
-            ),
+                TextFormField(
+                  initialValue: _note,
+                  decoration: InputDecoration(
+                    labelText: 'Ghi chú',
+                    prefixIcon: Icon(Icons.note),
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) => _note = value,
+                ),
+
             const SizedBox(height: 12),
             Row(
               children: [

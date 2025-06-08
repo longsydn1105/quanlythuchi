@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-import 'Screens/login.dart';
 import 'Screens/signup.dart';
-import 'Screens/welcome.dart';
+import 'package:get/get.dart';
+import 'controllers/expense_controller.dart';
+import '../../db/repositories/expense_repository.dart';
+import 'controllers/user_controller.dart';
+import '../../db/repositories/user_repository.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(ExpenseController(ExpenseRepository()));
+  Get.put(UserController(UserRepository()));
   runApp(const MyApp());
 }
 

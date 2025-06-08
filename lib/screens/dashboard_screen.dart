@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'lichsugiaodich/add_transaction_page.dart';
-import 'lichsugiaodich/transaction_list_page.dart';
+import 'Lichsugiaodich/add_transaction_page.dart';
+import 'Lichsugiaodich/transaction_list_page.dart';
 
 
 class DashboardScreen extends StatelessWidget {
@@ -8,7 +8,6 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(

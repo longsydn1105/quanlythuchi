@@ -1,13 +1,15 @@
 
 import '../db/repositories/expense_repository.dart';
 import '../models/expense.dart';
+import '/models/transaction.dart';
+
 
 class ExpenseController {
   final ExpenseRepository _expenseRepository;
 
   // Khởi tạo controller với một ExpenseRepository
   ExpenseController(this._expenseRepository);
-
+  // Removed duplicate addTransaction method to resolve naming conflict
   // Thêm một khoản chi tiêu mới
   // - Kiểm tra số tiền (amount) phải > 0
   // - Gọi repository để thêm vào database
@@ -24,6 +26,9 @@ class ExpenseController {
       rethrow;
     }
   }
+  Future<void> addTransaction(Transaction transaction) async {
+  // TODO: Thêm logic lưu transaction vào database hoặc danh sách
+}
 
   // Lấy danh sách các khoản chi tiêu của một người dùng cụ thể
   // - Nhận userId làm tham số

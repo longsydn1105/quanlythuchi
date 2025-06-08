@@ -2,6 +2,7 @@ import '../database_helper.dart';
 import '../../models/expense.dart';
 
 class ExpenseRepository {
+  
 
   
   // Thêm một expense mới vào database
