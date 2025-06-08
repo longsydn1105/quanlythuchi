@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_quanlythuchi/models/expense.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:get/get.dart';
-import 'controllers/expense_controller.dart'; // Thêm dòng này nếu ExpenseController nằm ở đây
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'Screens/login.dart'; // Bạn có thể thay bằng signup.dart nếu muốn
-import 'controllers/user_controller.dart'; // Thêm dòng này
+import 'Screens/lognin.dart'; // Bạn có thể thay bằng signup.dart nếu muốn
 import '../db/database_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await DatabaseHelper().init();
   
   runApp(const MyApp());

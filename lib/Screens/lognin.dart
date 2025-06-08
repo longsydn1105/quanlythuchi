@@ -1,49 +1,39 @@
 import 'package:flutter/material.dart';
 import '../controllers/user_controller.dart';
-import '../Screens/lognin.dart'; // Quay lại trang đăng nhập
+import '../Screens/dashboard_screen.dart'; // Trang sau khi đăng nhập thành công
+import '../Screens/signup.dart'; // Trang đăng ký tài khoản
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _LoginPageState extends State<LoginPage> {
   final UserController _userController = UserController();
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
 
   String _errorMessage = '';
-  String _successMessage = '';
 
-  void _handleRegister() async {
+  void _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      final result = await _userController.register(
+      final result = await _userController.login(
         _usernameController.text.trim(),
         _passwordController.text.trim(),
-        _confirmPasswordController.text.trim(),
       );
 
       if (result.success) {
-        setState(() {
-          _successMessage = 'Đăng ký thành công! Vui lòng đăng nhập.';
-          _errorMessage = '';
-        });
-
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginPage()),
-          );
-        });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        );
       } else {
         setState(() {
           _errorMessage = result.message;
-          _successMessage = '';
         });
       }
     }
@@ -53,7 +43,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đăng ký'),
+        title: const Text('Đăng nhập'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -62,7 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             const SizedBox(height: 40),
             Text(
-              'Tạo tài khoản mới',
+              'Chào mừng trở lại!',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -78,14 +68,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
-            if (_successMessage.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: Text(
-                  _successMessage,
-                  style: const TextStyle(color: Colors.green),
-                ),
-              ),
             Form(
               key: _formKey,
               child: Column(
@@ -95,7 +77,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: 'Tên đăng nhập',
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person_add),
+                      prefixIcon: Icon(Icons.person),
                     ),
                     validator: (value) =>
                         value == null || value.isEmpty ? 'Nhập tên đăng nhập' : null,
@@ -107,33 +89,18 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: 'Mật khẩu',
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock_outline),
+                      prefixIcon: Icon(Icons.lock),
                     ),
                     validator: (value) =>
-                        value == null || value.length < 6
-                            ? 'Mật khẩu phải từ 6 ký tự'
-                            : null,
-                  ),
-                  const SizedBox(height: 15),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Xác nhận mật khẩu',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.lock_reset),
-                    ),
-                    validator: (value) => value != _passwordController.text
-                        ? 'Mật khẩu không khớp'
-                        : null,
+                        value == null || value.isEmpty ? 'Nhập mật khẩu' : null,
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _handleRegister,
-                      child: const Text('Đăng ký'),
+                      onPressed: _handleLogin,
+                      child: const Text('Đăng nhập'),
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -145,12 +112,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 15),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(builder: (context) => RegisterPage()),
                       );
                     },
-                    child: const Text('Đã có tài khoản? Đăng nhập'),
+                    child: const Text('Chưa có tài khoản? Đăng ký'),
                   ),
                 ],
               ),

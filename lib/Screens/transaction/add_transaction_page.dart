@@ -78,9 +78,14 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         date: _selectedDate,
       );
 
-        await expenseController.addTransaction(newTransaction);
+        await expenseController.addExpense(
+          _amount!,
+          _transactionType,
+          _selectedCategory,
+          _selectedDate,
+          _note,
+        );
         Navigator.pop(context, newTransaction);
-
   }
 
   @override
