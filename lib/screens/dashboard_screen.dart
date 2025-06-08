@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'lichsugiaodich/add_transaction_page.dart';
 import 'lichsugiaodich/transaction_list_page.dart';
-
+import 'package:flutter_quanlythuchi/Screens/Profile/profile_page.dart';
 
 
 class DashboardScreen extends StatelessWidget {
@@ -102,6 +102,11 @@ class DashboardScreen extends StatelessWidget {
               context,
               MaterialPageRoute(builder: (_) => const TransactionListPage()),
             );
+          } else if (title == 'Cài đặt cá nhân') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
+            );
           } else {
             // TODO: Xử lý các mục còn lại
           }
@@ -120,8 +125,6 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }
 
 class _InfoColumn extends StatelessWidget {
@@ -138,6 +141,4 @@ class _InfoColumn extends StatelessWidget {
       ],
     );
   }
-  
 }
-

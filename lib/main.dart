@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:flutter_quanlythuchi/models/expense.dart';
 import 'Screens/login.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+=======
+import 'Screens/signup.dart';
+>>>>>>> 8bda4eb (Update Code Profile)
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -5,7 +5,7 @@ import 'transaction_list_page.dart';
 class AddTransactionPage extends StatefulWidget {
   final Transaction? transaction;
 
-  const AddTransactionPage({Key? key, this.transaction}) : super(key: key);
+  const AddTransactionPage({super.key, this.transaction});
 
   @override
   State<AddTransactionPage> createState() => _AddTransactionPageState();
@@ -58,9 +58,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final note = _noteController.text.trim();
 
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')));
       return;
     }
 
@@ -80,7 +80,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final isEditing = widget.transaction != null;
 
     return Scaffold(
-      appBar: AppBar(title: Text(isEditing ? 'Chỉnh sửa Giao Dịch' : 'Thêm Giao Dịch')),
+      appBar: AppBar(
+        title: Text(isEditing ? 'Chỉnh sửa Giao Dịch' : 'Thêm Giao Dịch'),
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -101,9 +103,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 labelText: 'Loại',
                 border: OutlineInputBorder(),
               ),
-              items: ['Thu', 'Chi'].map((type) {
-                return DropdownMenuItem(value: type, child: Text(type));
-              }).toList(),
+              items:
+                  ['Thu', 'Chi'].map((type) {
+                    return DropdownMenuItem(value: type, child: Text(type));
+                  }).toList(),
               onChanged: (value) {
                 if (value != null) setState(() => _transactionType = value);
               },
@@ -115,9 +118,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 labelText: 'Danh mục',
                 border: OutlineInputBorder(),
               ),
-              items: _categories.map((cat) {
-                return DropdownMenuItem(value: cat, child: Text(cat));
-              }).toList(),
+              items:
+                  _categories.map((cat) {
+                    return DropdownMenuItem(value: cat, child: Text(cat));
+                  }).toList(),
               onChanged: (value) {
                 if (value != null) setState(() => _selectedCategory = value);
               },
@@ -143,7 +147,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   icon: Icon(Icons.calendar_today),
                   label: Text('Chọn ngày'),
                   onPressed: _selectDate,
-                )
+                ),
               ],
             ),
             const SizedBox(height: 24),
