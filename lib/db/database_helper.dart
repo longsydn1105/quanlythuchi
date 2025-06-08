@@ -1,70 +1,55 @@
 // lib/db/database_helper.dart
-import 'package:sqflite/sqflite.dart';
+import 'package:hive/hive.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   // Singleton pattern
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
-  static const _dbName = 'chi_tieu.db';
-  static const _dbVersion = 1;
+  static const _dbName = 'chi_tieu'; // Tên box trong Hive
+  static const _userBoxName = 'users';
+  static const _expenseBoxName = 'expenses';
 
-  static Database? _database;
+  Box? _userBox;
+  Box? _expenseBox;
 
-  static Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await instance._initDatabase();
-    return _database!;
+  Future<Box> get userBox async {
+    _userBox ??= await instance._initBox(_userBoxName);
+    return _userBox!;
   }
 
-  Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, _dbName);
-    
-    return await openDatabase(
-      path,
-      version: _dbVersion,
-      onCreate: _onCreate,
-      onConfigure: _onConfigure,
-    );
+  Future<Box> get expenseBox async {
+    _expenseBox ??= await instance._initBox(_expenseBoxName);
+    return _expenseBox!;
   }
 
-  Future<void> _onConfigure(Database db) async {
-    // Bật foreign key constraints
-    await db.execute('PRAGMA foreign_keys = ON');
+  Future<Box> _initBox(String boxName) async {
+    if (!Hive.isBoxOpen(boxName)) {
+      final directory = await getApplicationDocumentsDirectory();
+      Hive.init(join(directory.path, _dbName));
+      
+      // Đăng ký adapter nếu cần (phải tạo adapter trước)
+      // Hive.registerAdapter(UserAdapter());
+      // Hive.registerAdapter(ExpenseAdapter());
+      
+      return await Hive.openBox(boxName);
+    }
+    return Hive.box(boxName);
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        created_at TEXT DEFAULT (datetime('now','localtime'))
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE expenses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        amount REAL NOT NULL,
-        type TEXT CHECK(type IN ('Thu', 'Chi')) NOT NULL,
-        category TEXT NOT NULL,
-        date TEXT NOT NULL,
-        note TEXT,
-        created_at TEXT DEFAULT (datetime('now','localtime')),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-      )
-    ''');
+  // Tương đương với _onCreate trong sqflite
+  Future<void> initialize() async {
+    await _initBox(_userBoxName);
+    await _initBox(_expenseBoxName);
   }
-  
+
   // Đóng kết nối database khi không dùng
   Future<void> close() async {
-    if (_database != null) {
-      await _database!.close();
-      _database = null;
-    }
+    await _userBox?.close();
+    await _expenseBox?.close();
+    _userBox = null;
+    _expenseBox = null;
   }
 }

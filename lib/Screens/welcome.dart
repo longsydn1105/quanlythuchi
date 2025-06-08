@@ -1,13 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MyWelcome extends StatelessWidget {
-  const MyWelcome({Key? key}) : super(key: key);
+  const MyWelcome({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,17 +20,11 @@ class MyWelcome extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   _welcomeLabel("Welcome", Color(0xff909090)),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   _logo(),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   _loginBtn((() => Navigator.pop(context))),
                 ],
               ),

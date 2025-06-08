@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'Lichsugiaodich/add_transaction_page.dart';
-import 'Lichsugiaodich/transaction_list_page.dart';
+import '/Screens/transaction/add_transaction_page.dart';
+import '/Screens/transaction/transaction_list_page.dart';
+import 'package:flutter_quanlythuchi/Screens/Profile/profile_page.dart';
+import '/Screens/thongke/report_screen.dart';
 
 
 class DashboardScreen extends StatelessWidget {
@@ -8,6 +10,7 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       body: SafeArea(
@@ -84,42 +87,50 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLargeButton(BuildContext context, String title) {
-    return SizedBox(
-      width: 400,
-      height: 150,
-      child: OutlinedButton(
-        onPressed: () {
-          if (title == 'Thêm giao dịch') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AddTransactionPage()),
-            );
-          } else if (title == 'Danh sách giao dịch') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const TransactionListPage()),
-            );
-          } else {
-            // TODO: Xử lý các mục còn lại
-          }
-        },
-        style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-          side: const BorderSide(color: Colors.black),
+Widget _buildLargeButton(BuildContext context, String title) {
+  return SizedBox(
+    width: 400,
+    height: 150,
+    child: OutlinedButton(
+      onPressed: () {
+        if (title == 'Thêm giao dịch') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+          );
+        } else if (title == 'Báo cáo thống kê') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => ReportScreen()),
+          );
+        } else if (title == 'Danh sách giao dịch') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TransactionListPage()),
+          );
+        } else if (title == 'Cài đặt cá nhân') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const ProfilePage()),
+          );
+        } else {
+          // TODO: Xử lý các mục còn lại
+        }
+      },
+      style: OutlinedButton.styleFrom(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
         ),
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
-        ),
+        side: const BorderSide(color: Colors.black),
       ),
-    );
-  }
-
-
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 16),
+      ),
+    ),
+  );
+}
 }
 
 class _InfoColumn extends StatelessWidget {
@@ -136,6 +147,4 @@ class _InfoColumn extends StatelessWidget {
       ],
     );
   }
-  
 }
-
