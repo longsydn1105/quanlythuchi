@@ -7,8 +7,8 @@ class ExpenseRepository {
   Future<int> insertExpense(Expense expense) async {
     try {
       final box = await DatabaseHelper.instance.expenseBox;
-      await box.add(expense);
-      return expense.key; // Trong Hive, key được tự động gán khi add
+      final key = await box.add(expense);
+      return key; // Trong Hive, key được tự động gán khi add
     } catch (e) {
       return -1;
     }
@@ -39,10 +39,11 @@ class ExpenseRepository {
 
   // Cập nhật thông tin expense trong database
   // Trả về true nếu thành công, false nếu thất bại
-  Future<bool> updateExpense(Expense expense) async {
+  // Lưu ý: Cần truyền vào key của expense khi cập nhật
+  Future<bool> updateExpense(int key, Expense expense) async {
     try {
       final box = await DatabaseHelper.instance.expenseBox;
-      await box.put(expense.key, expense);
+      await box.put(key, expense);
       return true;
     } catch (e) {
       return false;
