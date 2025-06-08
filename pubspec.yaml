@@ -34,6 +34,7 @@ dependencies:
   sqflite: ^2.4.2             # Core Hive library
   hive_flutter: ^1.1.0     # Hive integration for Flutter (e.g., initializing Hive)
   path_provider: ^2.1.2
+  shared_preferences: ^2.2.2
   path: ^1.8.3 
   get: ^4.6.6
 

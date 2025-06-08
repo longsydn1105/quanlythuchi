@@ -1,16 +1,6 @@
-import 'package:hive/hive.dart';
-
-part 'user.g.dart'; // File sẽ được generate tự động
-
-@HiveType(typeId: 0) // typeId phải khác với Expense (đã dùng 1)
-class User extends HiveObject {
-  @HiveField(0)
-  int? id; // Non-final để Hive có thể tự gán ID
-  
-  @HiveField(1)
+class User {
+  int? id; // Có thể null khi tạo mới
   final String username;
-  
-  @HiveField(2)
   final String password;
 
   User({
@@ -19,7 +9,7 @@ class User extends HiveObject {
     required this.password,
   });
 
-  // Chuyển đổi từ Map (hữu ích khi cần tích hợp API hoặc SQLite)
+  // Chuyển đổi từ Map (khi đọc từ SharedPreferences)
   factory User.fromMap(Map<String, dynamic> map) {
     if (map['username'] == null || map['password'] == null) {
       throw FormatException('Invalid user data: missing username or password');
@@ -31,7 +21,7 @@ class User extends HiveObject {
     );
   }
 
-  // Chuyển đổi sang Map
+  // Chuyển đổi sang Map (khi lưu vào SharedPreferences)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -40,13 +30,12 @@ class User extends HiveObject {
     };
   }
 
-  // Override toString để tiện debug
   @override
   String toString() {
     return 'User{id: $id, username: $username, password: ****}';
   }
 
-  // Phương thức copyWith để tạo bản sao với thay đổi
+  // Tạo bản sao với các thay đổi
   User copyWith({
     int? id,
     String? username,
@@ -59,7 +48,6 @@ class User extends HiveObject {
     );
   }
 
-  // Phương thức kiểm tra equality (tuỳ chọn)
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
