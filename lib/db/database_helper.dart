@@ -2,6 +2,8 @@
 import 'package:hive/hive.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class DatabaseHelper {
   // Singleton pattern
@@ -51,5 +53,22 @@ class DatabaseHelper {
     await _expenseBox?.close();
     _userBox = null;
     _expenseBox = null;
+  }
+}
+
+class SharedService {
+  static Future<void> saveLogin(String username) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+  }
+
+  static Future<String?> getUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
+
+  static Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('username');
   }
 }

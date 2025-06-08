@@ -5,7 +5,7 @@ import '../controllers/user_controller.dart';
 import '../db/repositories/user_repository.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/signup.dart';
-import '../services/shared_service.dart';
+import '../db/database_helper.dart';
 
 class LoginPage extends StatelessWidget {
   final _usernameController = TextEditingController();

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quanlythuchi/models/expense.dart';
-import 'package:flutter_quanlythuchi/models/expense.g.dart';
-import 'package:flutter_quanlythuchi/services/shared_service.dart' show SharedService;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
