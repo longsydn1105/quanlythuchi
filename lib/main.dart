@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quanlythuchi/models/expense.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
 import 'db/repositories/expense_repository.dart'; // Thêm dòng này nếu ExpenseRepository nằm ở đây
 import 'controllers/expense_controller.dart'; // Thêm dòng này nếu ExpenseController nằm ở đây
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'Screens/login.dart'; // Bạn có thể thay bằng signup.dart nếu muốn
 import 'controllers/user_controller.dart'; // Thêm dòng này
 import 'db/repositories/user_repository.dart';
@@ -18,20 +19,36 @@ void main() async {
 
   final userRepository = UserRepository(); // Thêm dòng này
   Get.put(UserController(userRepository)); // Thêm dòng này
-
-  try {
-    final appDocumentDir = await getApplicationDocumentsDirectory();
-    await Hive.initFlutter(appDocumentDir.path);
-
-    Hive.registerAdapter(ExpenseAdapter());
-    await Hive.openBox<Expense>('expenses');
-  } catch (e) {
-    print("❌ Lỗi khi khởi tạo Hive hoặc mở Box: $e");
-  }
-
+  // Đảm bảo khởi tạo Hive trước khi chạy ứng dụng
+  initHive();
   runApp(const MyApp());
 }
 
+Future<void> initHive() async {
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    if (kIsWeb) {
+      // Chạy trên web - không dùng path_provider
+      await Hive.initFlutter(); // hoặc await Hive.initFlutter(); (tùy phiên bản Hive)
+    } else {
+      // Chạy trên mobile/desktop
+      final appDocumentDir = await getApplicationDocumentsDirectory();
+      await Hive.initFlutter(appDocumentDir.path);
+    }
+
+    if (!Hive.isAdapterRegistered(ExpenseAdapter().typeId)) {
+      Hive.registerAdapter(ExpenseAdapter());
+    }
+
+    if (!Hive.isBoxOpen('expenses')) {
+      await Hive.openBox<Expense>('expenses');
+    }
+    print('Khởi tạo Hive thành công');
+  } catch (e) {
+    print('❌ Lỗi khởi tạo Hive: $e');
+  }
+}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
