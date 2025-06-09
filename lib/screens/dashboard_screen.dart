@@ -138,7 +138,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildLargeButton(context, 'Báo cáo thống kê'),
                   _buildLargeButton(context, 'Danh sách giao dịch'),
                   _buildLargeButton(context, 'Cài đặt cá nhân'),
-                  _buildLargeButton(context, 'Danh mục chi tiêu'),
                   _buildLargeButton(context, 'Đăng xuất'),
                 ],
               ),
