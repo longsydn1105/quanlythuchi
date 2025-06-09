@@ -33,13 +33,17 @@ class _TransactionListPageState extends State<TransactionListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lịch sử giao dịch'),
+        title: const Text('Lịch sử giao dịch'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        elevation: 0,
       ),
+      backgroundColor: Colors.grey[100],
       body: FutureBuilder<List<Expense>>(
         future: _loadExpenses(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           final expenses = snapshot.data!;
           double totalIncome = 0;
@@ -57,33 +61,25 @@ class _TransactionListPageState extends State<TransactionListPage> {
           return Column(
             children: [
               Card(
-                margin: EdgeInsets.all(12),
-                elevation: 4,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                margin: const EdgeInsets.all(16),
+                elevation: 6,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Column(
-                        children: [
-                          Text('Tổng thu nhập', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                          SizedBox(height: 8),
-                          Text(
-                            '$formattedIncome đ',
-                            style: TextStyle(color: Colors.green, fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                      _InfoTile(
+                        icon: Icons.arrow_downward,
+                        label: 'Tổng thu nhập',
+                        value: '$formattedIncome đ',
+                        color: Colors.green,
                       ),
-                      Column(
-                        children: [
-                          Text('Tổng chi tiêu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                          SizedBox(height: 8),
-                          Text(
-                            '$formattedExpense đ',
-                            style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ],
+                      _InfoTile(
+                        icon: Icons.arrow_upward,
+                        label: 'Tổng chi tiêu',
+                        value: '$formattedExpense đ',
+                        color: Colors.red,
                       ),
                     ],
                   ),
@@ -91,29 +87,61 @@ class _TransactionListPageState extends State<TransactionListPage> {
               ),
               Expanded(
                 child: expenses.isEmpty
-                    ? Center(child: Text('Chưa có giao dịch nào'))
-                    : ListView.builder(
+                    ? const Center(
+                        child: Text(
+                          'Chưa có giao dịch nào',
+                          style: TextStyle(fontSize: 18, color: Colors.black54),
+                        ),
+                      )
+                    : ListView.separated(
                         itemCount: expenses.length,
+                        separatorBuilder: (context, index) => const SizedBox(height: 4),
                         itemBuilder: (context, index) {
                           final tx = expenses[index];
                           final formattedAmount = _currencyFormat.format(tx.amount);
                           return Card(
-                            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
                             elevation: 3,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: tx.type == 'Thu' ? Colors.green : Colors.red,
                                 child: Icon(
-                                  tx.type == 'Thu' ? Icons.arrow_downward : Icons.arrow_upward,
+                                  tx.type == 'Thu' ? Icons.trending_up : Icons.trending_down,
                                   color: Colors.white,
                                 ),
                               ),
                               title: Text(
-                                '${tx.category} - ${tx.type}',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                tx.category,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              subtitle: Text('${tx.note}\nNgày: ${DateFormat('dd/MM/yyyy').format(tx.date)}'),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    tx.type == 'Thu' ? 'Thu nhập' : 'Chi tiêu',
+                                    style: TextStyle(
+                                      color: tx.type == 'Thu' ? Colors.green : Colors.red,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  if (tx.note.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2.0),
+                                      child: Text(
+                                        tx.note,
+                                        style: const TextStyle(color: Colors.black87),
+                                      ),
+                                    ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2.0),
+                                    child: Text(
+                                      'Ngày: ${DateFormat('dd/MM/yyyy').format(tx.date)}',
+                                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                    ),
+                                  ),
+                                ],
+                              ),
                               isThreeLine: true,
                               trailing: Text(
                                 '$formattedAmount đ',
@@ -134,9 +162,40 @@ class _TransactionListPageState extends State<TransactionListPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _navigateToAddTransaction,
-        icon: Icon(Icons.add),
-        label: Text('Thêm'),
+        icon: const Icon(Icons.add),
+        label: const Text('Thêm'),
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
       ),
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        CircleAvatar(
+          backgroundColor: color.withOpacity(0.15),
+          child: Icon(icon, color: color),
+        ),
+        const SizedBox(height: 8),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+      ],
     );
   }
 }
