@@ -4,15 +4,61 @@ import '/Screens/transaction/transaction_list_page.dart';
 import 'package:flutter_quanlythuchi/Screens/Profile/profile_page.dart';
 import '/Screens/thongke/report_screen.dart';
 import '/Screens/login.dart';
+import 'package:get/get.dart';
+import '../controllers/expense_controller.dart';
+import '../models/expense.dart';
+import 'package:intl/intl.dart';
 
-
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
 
+class _DashboardScreenState extends State<DashboardScreen> {
+  final ExpenseController _expenseController = Get.find<ExpenseController>();
+  final NumberFormat _currencyFormat = NumberFormat('#,###', 'vi_VN');
+
+  double _totalIncome = 0;
+  double _totalExpense = 0;
+  double _balance = 0;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTotals();
+  }
+
+  Future<void> _loadTotals() async {
+    setState(() => _loading = true);
+    final expenses = await _expenseController.getUserExpenses();
+    double income = 0;
+    double expense = 0;
+    for (var tx in expenses) {
+      if (tx.type == 'Thu') {
+        income += tx.amount;
+      } else if (tx.type == 'Chi') {
+        expense += tx.amount;
+      }
+    }
+    setState(() {
+      _totalIncome = income;
+      _totalExpense = expense;
+      _balance = income - expense;
+      _loading = false;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadTotals();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -34,34 +80,51 @@ class DashboardScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 16),
-
               const Text(
                 'Tháng 6',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-
               const SizedBox(height: 8),
 
-              // Thu - Chi - Dư
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 200),
-                      child: _InfoColumn(label: 'Thu', value: '50.000VND'),
+              // Thu - Chi - Dư (Đẹp hơn, có số liệu thực tế)
+              _loading
+                  ? const CircularProgressIndicator()
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _InfoTile(
+                                icon: Icons.arrow_downward,
+                                label: 'Thu',
+                                value: '${_currencyFormat.format(_totalIncome)} đ',
+                                color: Colors.green,
+                              ),
+                              _InfoTile(
+                                icon: Icons.arrow_upward,
+                                label: 'Chi',
+                                value: '${_currencyFormat.format(_totalExpense)} đ',
+                                color: Colors.red,
+                              ),
+                              _InfoTile(
+                                icon: Icons.account_balance_wallet,
+                                label: 'Dư',
+                                value: '${_currencyFormat.format(_balance)} đ',
+                                color: Colors.blue,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    const _InfoColumn(label: 'Chi', value: '30.000VND'),
-                    const Padding(
-                      padding: EdgeInsets.only(right: 200),
-                      child: _InfoColumn(label: 'Dư', value: '20.000VND'),
-                    ),
-                  ],
-                ),
-              ),
 
               const SizedBox(height: 30),
 
@@ -88,69 +151,84 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-Widget _buildLargeButton(BuildContext context, String title) {
-  return SizedBox(
-    width: 400,
-    height: 150,
-    child: OutlinedButton(
-      onPressed: () {
-        if (title == 'Thêm giao dịch') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddTransactionPage()),
-          );
-        } else if (title == 'Báo cáo thống kê') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => ReportScreen()),
-          );
-        } else if (title == 'Danh sách giao dịch') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const TransactionListPage()),
-          );
-        } else if (title == 'Cài đặt cá nhân') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfilePage()),
-          );
-        } else if (title == 'Đăng xuất') {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (_) => LoginPage()),
-            (route) => false,
-          );
-        } else {
-          // TODO: Xử lý các mục còn lại
-        }
-      },
-      style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
+  Widget _buildLargeButton(BuildContext context, String title) {
+    return SizedBox(
+      width: 400,
+      height: 150,
+      child: OutlinedButton(
+        onPressed: () async {
+          if (title == 'Thêm giao dịch') {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AddTransactionPage()),
+            );
+            _loadTotals(); // Cập nhật lại số liệu sau khi thêm
+          } else if (title == 'Báo cáo thống kê') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ReportScreen()),
+            );
+          } else if (title == 'Danh sách giao dịch') {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const TransactionListPage()),
+            );
+            _loadTotals(); // Cập nhật lại số liệu sau khi quay về
+          } else if (title == 'Cài đặt cá nhân') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
+            );
+          } else if (title == 'Đăng xuất') {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => LoginPage()),
+              (route) => false,
+            );
+          } else {
+            // TODO: Xử lý các mục còn lại
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          side: const BorderSide(color: Colors.black),
         ),
-        side: const BorderSide(color: Colors.black),
+        child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
       ),
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 16),
-      ),
-    ),
-  );
-}
+    );
+  }
 }
 
-class _InfoColumn extends StatelessWidget {
+class _InfoTile extends StatelessWidget {
+  final IconData icon;
   final String label;
   final String value;
-  const _InfoColumn({required this.label, required this.value});
+  final Color color;
+
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(value),
+        CircleAvatar(
+          backgroundColor: color.withOpacity(0.15),
+          child: Icon(icon, color: color),
+        ),
+        const SizedBox(height: 8),
+        Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
+        Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
       ],
     );
   }
