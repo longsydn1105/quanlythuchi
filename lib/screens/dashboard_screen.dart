@@ -3,6 +3,7 @@ import '/Screens/transaction/add_transaction_page.dart';
 import '/Screens/transaction/transaction_list_page.dart';
 import 'package:flutter_quanlythuchi/Screens/Profile/profile_page.dart';
 import '/Screens/thongke/report_screen.dart';
+import '/Screens/login.dart';
 
 
 class DashboardScreen extends StatelessWidget {
@@ -112,6 +113,12 @@ Widget _buildLargeButton(BuildContext context, String title) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const ProfilePage()),
+          );
+        } else if (title == 'Đăng xuất') {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => LoginPage()),
+            (route) => false,
           );
         } else {
           // TODO: Xử lý các mục còn lại

@@ -60,8 +60,8 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   Future<void> _saveTransaction() async {
-      final amount = _amount;
-      final note = _note;
+    final amount = _amount;
+    final note = _note;
 
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(
@@ -70,22 +70,20 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       return;
     }
 
-      final newTransaction = Transaction(
-        amount: _amount!,
-        type: _transactionType,
-        category: _selectedCategory,
-        note: _note,
-        date: _selectedDate,
+    try {
+      await expenseController.addExpense(
+        amount,
+        _transactionType,
+        _selectedCategory,
+        _selectedDate,
+        note,
       );
-
-        await expenseController.addExpense(
-          _amount!,
-          _transactionType,
-          _selectedCategory,
-          _selectedDate,
-          _note,
-        );
-        Navigator.pop(context, newTransaction);
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi lưu giao dịch: $e')),
+      );
+    }
   }
 
   @override

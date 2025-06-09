@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/user_controller.dart';
-import '../Screens/lognin.dart'; // Quay lại trang đăng nhập
+import '../Screens/login.dart'; // Quay lại trang đăng nhập
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

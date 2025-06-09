@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import 'Screens/lognin.dart'; // Bạn có thể thay bằng signup.dart nếu muốn
+import 'Screens/login.dart'; // Bạn có thể thay bằng signup.dart nếu muốn
 import '../db/database_helper.dart';
+import 'package:get/get.dart';
+import 'controllers/expense_controller.dart';
+import 'controllers/user_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+   Get.put(ExpenseController());
+   Get.put(UserController());
   await DatabaseHelper().init();
   
   runApp(const MyApp());

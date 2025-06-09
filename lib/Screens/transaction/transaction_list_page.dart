@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '/controllers/expense_controller.dart';
+import '/models/expense.dart';
 import 'add_transaction_page.dart';
-import '/models/transaction.dart';
 
 class TransactionListPage extends StatefulWidget {
   const TransactionListPage({super.key});
@@ -11,149 +12,110 @@ class TransactionListPage extends StatefulWidget {
 }
 
 class _TransactionListPageState extends State<TransactionListPage> {
-  final List<Transaction> _transactions = [];
-  
+  final ExpenseController _expenseController = ExpenseController();
   final NumberFormat _currencyFormat = NumberFormat('#,###', 'vi_VN');
 
-  void _navigateToAddTransaction({Transaction? existingTransaction, int? index}) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AddTransactionPage(transaction: existingTransaction),
-      ),
-    );
-
-    if (result != null && result is Transaction) {
-      setState(() {
-        if (index != null) {
-          // Chỉnh sửa
-          _transactions[index] = result;
-        } else {
-          // Thêm mới
-          _transactions.add(result);
-        }
-      });
-    }
+  Future<List<Expense>> _loadExpenses() async {
+    return await _expenseController.getUserExpenses();
   }
 
-  void _deleteTransaction(int index) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc muốn xóa giao dịch này không?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text('Hủy'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text('Xóa', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+  void _navigateToAddTransaction() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddTransactionPage(),
       ),
     );
-
-    if (confirm == true) {
-      setState(() {
-        _transactions.removeAt(index);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Đã xóa giao dịch')),
-      );
-    }
+    setState(() {}); // Để reload lại danh sách khi quay về
   }
 
   @override
   Widget build(BuildContext context) {
-    // Tính tổng thu nhập và tổng chi tiêu
-    double totalIncome = 0;
-    double totalExpense = 0;
-
-    for (var tx in _transactions) {
-      if (tx.type == 'Thu') {
-        totalIncome += tx.amount;
-      } else if (tx.type == 'Chi') {
-        totalExpense += tx.amount;
-      }
-    }
-
-    final formattedIncome = _currencyFormat.format(totalIncome);
-    final formattedExpense = _currencyFormat.format(totalExpense);
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Lịch sử giao dịch'),
       ),
-      body: Column(
-        children: [
-          // Phần tổng thu nhập & chi tiêu
-          Card(
-            margin: EdgeInsets.all(12),
-            elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Column(
-                    children: [
-                      Text('Tổng thu nhập', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text(
-                        '$formattedIncome đ',
-                        style: TextStyle(color: Colors.green, fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text('Tổng chi tiêu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                      SizedBox(height: 8),
-                      Text(
-                        '$formattedExpense đ',
-                        style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+      body: FutureBuilder<List<Expense>>(
+        future: _loadExpenses(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+          final expenses = snapshot.data!;
+          double totalIncome = 0;
+          double totalExpense = 0;
+          for (var tx in expenses) {
+            if (tx.type == 'Thu') {
+              totalIncome += tx.amount;
+            } else if (tx.type == 'Chi') {
+              totalExpense += tx.amount;
+            }
+          }
+          final formattedIncome = _currencyFormat.format(totalIncome);
+          final formattedExpense = _currencyFormat.format(totalExpense);
 
-          // Danh sách giao dịch
-          Expanded(
-            child: _transactions.isEmpty
-                ? Center(child: Text('Chưa có giao dịch nào'))
-                : ListView.builder(
-                    itemCount: _transactions.length,
-                    itemBuilder: (context, index) {
-                      final tx = _transactions[index];
-                      final formattedAmount = _currencyFormat.format(tx.amount);
-                      return Card(
-                        margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: tx.type == 'Thu' ? Colors.green : Colors.red,
-                            child: Icon(
-                              tx.type == 'Thu' ? Icons.arrow_downward : Icons.arrow_upward,
-                              color: Colors.white,
-                            ),
+          return Column(
+            children: [
+              Card(
+                margin: EdgeInsets.all(12),
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          Text('Tổng thu nhập', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                          SizedBox(height: 8),
+                          Text(
+                            '$formattedIncome đ',
+                            style: TextStyle(color: Colors.green, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          title: Text(
-                            '${tx.category} - ${tx.type}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text('Tổng chi tiêu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                          SizedBox(height: 8),
+                          Text(
+                            '$formattedExpense đ',
+                            style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
-                          subtitle: Text('${tx.note}\nNgày: ${DateFormat('dd/MM/yyyy').format(tx.date)}'),
-                          isThreeLine: true,
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: expenses.isEmpty
+                    ? Center(child: Text('Chưa có giao dịch nào'))
+                    : ListView.builder(
+                        itemCount: expenses.length,
+                        itemBuilder: (context, index) {
+                          final tx = expenses[index];
+                          final formattedAmount = _currencyFormat.format(tx.amount);
+                          return Card(
+                            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: tx.type == 'Thu' ? Colors.green : Colors.red,
+                                child: Icon(
+                                  tx.type == 'Thu' ? Icons.arrow_downward : Icons.arrow_upward,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              title: Text(
+                                '${tx.category} - ${tx.type}',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text('${tx.note}\nNgày: ${DateFormat('dd/MM/yyyy').format(tx.date)}'),
+                              isThreeLine: true,
+                              trailing: Text(
                                 '$formattedAmount đ',
                                 style: TextStyle(
                                   color: tx.type == 'Thu' ? Colors.green : Colors.red,
@@ -161,29 +123,17 @@ class _TransactionListPageState extends State<TransactionListPage> {
                                   fontSize: 18,
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              IconButton(
-                                icon: Icon(Icons.edit, color: Colors.teal),
-                                onPressed: () => _navigateToAddTransaction(
-                                  existingTransaction: tx,
-                                  index: index,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () => _deleteTransaction(index),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-        ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateToAddTransaction(),
+        onPressed: _navigateToAddTransaction,
         icon: Icon(Icons.add),
         label: Text('Thêm'),
       ),
