@@ -4,13 +4,12 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "type": "dart",
             "request": "launch",
             "name": "Launch Chrome against localhost",
             "program": "lib/main.dart",
-            "args": ["-d", "chrome"]
+            "args": ["-d", "chrome", "--web-port", "57519"]
         }
     ]
 }

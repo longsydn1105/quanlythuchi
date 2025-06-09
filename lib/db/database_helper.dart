@@ -99,6 +99,10 @@ class DatabaseHelper {
   // Lưu danh sách user
   Future<bool> _saveUsers(List<User> users) async {
     final usersJson = users.map((user) => user.toMap()).toList();
+
+    debugPrint('Đang lưu users: ${users.length} users'); //debug log
+    debugPrint('Nội dung JSON: ${json.encode(usersJson)}'); //debug log
+
     return await _prefs.setString(_usersKey, json.encode(usersJson));
   }
 
