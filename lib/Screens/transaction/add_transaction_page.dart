@@ -25,12 +25,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String _selectedCategory = 'Ăn uống';
 
   // Danh mục riêng cho Thu và Chi
-  final List<String> _incomeCategories = [
-    'Lương',
-    'Thưởng',
-    'Đầu tư',
-    'Khác',
-  ];
+  final List<String> _incomeCategories = ['Lương', 'Thưởng', 'Đầu tư', 'Khác'];
   final List<String> _expenseCategories = [
     'Ăn uống',
     'Di chuyển',
@@ -71,15 +66,59 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
+  // Future<void> _saveTransaction() async {
+  //   final amount = _amount;
+  //   final note = _note;
+  //   if (amount == null || amount <= 0) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')));
+  //     return;
+  //   }
+  //   try {
+  //     await expenseController.addExpense(
+  //       amount,
+  //       _transactionType,
+  //       _selectedCategory,
+  //       _selectedDate,
+  //       note,
+  //     );
+  //     Navigator.pop(context);
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Lỗi lưu giao dịch: $e')),
+  //     );
+  //   }
+  // }
   Future<void> _saveTransaction() async {
     final amount = _amount;
     final note = _note;
 
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')),
+      );
       return;
+    }
+
+    if (_transactionType == 'Chi') {
+      final userController = UserController(); // ✅ Sửa tại đây
+      final spendingLimit = await userController.getLimit(); // ✅ Sửa tại đây
+
+      if (spendingLimit != null) {
+        final currentSpent = await expenseController.getMonthlyExpenseTotal();
+
+        if ((currentSpent + amount) > spendingLimit) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Vượt quá giới hạn chi tiêu tháng! Đã dùng: ${currentSpent.toStringAsFixed(0)} / Giới hạn: ${spendingLimit.toStringAsFixed(0)}',
+              ),
+            ),
+          );
+          return;
+        }
+      }
     }
 
     try {
@@ -92,9 +131,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       );
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi lưu giao dịch: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi lưu giao dịch: $e')));
     }
   }
 
@@ -116,7 +155,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           child: Card(
             elevation: 6,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(22),
               child: Column(
@@ -128,11 +169,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     decoration: InputDecoration(
                       labelText: 'Số tiền',
                       prefixIcon: Icon(Icons.attach_money, color: Colors.teal),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     keyboardType: TextInputType.number,
                     onChanged: (value) => _amount = double.tryParse(value),
                   ),
@@ -145,10 +191,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           value: _transactionType,
                           decoration: InputDecoration(
                             labelText: 'Loại',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             prefixIcon: Icon(
-                              _transactionType == 'Thu' ? Icons.trending_up : Icons.trending_down,
-                              color: _transactionType == 'Thu' ? Colors.green : Colors.red,
+                              _transactionType == 'Thu'
+                                  ? Icons.trending_up
+                                  : Icons.trending_down,
+                              color:
+                                  _transactionType == 'Thu'
+                                      ? Colors.green
+                                      : Colors.red,
                             ),
                             filled: true,
                             fillColor: Colors.grey[50],
@@ -191,19 +244,29 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           value: _selectedCategory,
                           decoration: InputDecoration(
                             labelText: 'Danh mục',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: Icon(Icons.category, color: Colors.deepPurple),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.category,
+                              color: Colors.deepPurple,
+                            ),
                             filled: true,
                             fillColor: Colors.grey[50],
                           ),
-                          items: _categories
-                              .map((cat) => DropdownMenuItem(
-                                    value: cat,
-                                    child: Text(cat),
-                                  ))
-                              .toList(),
+                          items:
+                              _categories
+                                  .map(
+                                    (cat) => DropdownMenuItem(
+                                      value: cat,
+                                      child: Text(cat),
+                                    ),
+                                  )
+                                  .toList(),
                           onChanged: (value) {
-                            if (value != null) setState(() => _selectedCategory = value);
+                            if (value != null) {
+                              setState(() => _selectedCategory = value);
+                            }
                           },
                         ),
                       ),
@@ -215,8 +278,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     initialValue: _note,
                     decoration: InputDecoration(
                       labelText: 'Ghi chú',
-                      prefixIcon: Icon(Icons.note_alt, color: Colors.amber[800]),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: Icon(
+                        Icons.note_alt,
+                        color: Colors.amber[800],
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
@@ -229,7 +297,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     borderRadius: BorderRadius.circular(12),
                     onTap: _selectDate,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
                         border: Border.all(color: Colors.grey.shade300),
@@ -241,7 +312,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           const SizedBox(width: 12),
                           Text(
                             'Ngày: ${DateFormat('dd/MM/yyyy').format(_selectedDate)}',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const Spacer(),
                           Text(
@@ -267,8 +341,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
                         foregroundColor: Colors.white,
-                        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         elevation: 2,
                       ),
                     ),

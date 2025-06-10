@@ -1,9 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quanlythuchi/Screens/Profile/edit_account_page.dart';
 import 'package:flutter_quanlythuchi/Screens/Profile/spending_limit_page.dart';
+import 'package:flutter_quanlythuchi/controllers/user_controller.dart';
+import 'package:flutter_quanlythuchi/models/user.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  final UserController _userController = UserController();
+  User? _currentUser;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = await _userController.getCurrentUser();
+    setState(() {
+      _currentUser = user;
+      _isLoading = false;
+    });
+  }
+
+  void _logout() async {
+    await _userController
+        .logout(); // Hàm logout bạn cần định nghĩa trong UserController
+    if (!mounted) return;
+    Navigator.of(
+      context,
+    ).pushReplacementNamed('/login'); // Điều hướng về trang login
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,84 +49,95 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Container(
-        color: Colors.grey.shade100,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Avatar + tên
-            Center(
-              child: Column(
-                children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage('assets/images/main_top.png'),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    "Nguyễn Văn A",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "Quản lý tài chính cá nhân",
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                color: Colors.grey.shade100,
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    // Avatar + tên
+                    Center(
+                      child: Column(
+                        children: [
+                          const CircleAvatar(
+                            radius: 50,
+                            backgroundImage: AssetImage(
+                              'assets/images/main_top.png',
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            _currentUser?.username ?? "Không có tên",
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Text(
+                            "Quản lý tài chính cá nhân",
+                            style: TextStyle(fontSize: 14, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
 
-            const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-            // Nút điều hướng: Đổi tên và mật khẩu
-            buildActionButton(
-              context,
-              icon: Icons.lock_person,
-              label: "Đổi tên & mật khẩu",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const EditAccountPage()),
-                );
-              },
-            ),
+                    // Nút điều hướng: Đổi tên và mật khẩu
+                    buildActionButton(
+                      context,
+                      icon: Icons.lock_person,
+                      label: "Đổi tên & mật khẩu",
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditAccountPage(),
+                          ),
+                        );
+                        _loadUser(); // Reload dữ liệu sau khi quay lại
+                      },
+                    ),
 
-            // Nút điều hướng: Giới hạn chi tiêu
-            buildActionButton(
-              context,
-              icon: Icons.savings,
-              label: "Đặt giới hạn chi tiêu tháng",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SpendingLimitPage()),
-                );
-              },
-            ),
+                    // Nút điều hướng: Giới hạn chi tiêu
+                    buildActionButton(
+                      context,
+                      icon: Icons.savings,
+                      label: "Đặt giới hạn chi tiêu tháng",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SpendingLimitPage(),
+                          ),
+                        );
+                      },
+                    ),
 
-            const Spacer(),
+                    const Spacer(),
 
-            // Đăng xuất
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: Logic đăng xuất
-                },
-                icon: const Icon(Icons.logout),
-                label: const Text("Đăng xuất"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                    // // Đăng xuất
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   child: ElevatedButton.icon(
+                    //     onPressed: _logout,
+                    //     icon: const Icon(Icons.logout),
+                    //     label: const Text("Đăng xuất"),
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: Colors.redAccent,
+                    //       foregroundColor: Colors.white,
+                    //       padding: const EdgeInsets.symmetric(vertical: 14),
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(12),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

@@ -15,7 +15,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
   String _errorMessage = '';
   String _successMessage = '';
@@ -52,10 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Đăng ký'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Đăng ký'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -97,8 +95,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person_add),
                     ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Nhập tên đăng nhập' : null,
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Nhập tên đăng nhập'
+                                : null,
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
@@ -109,10 +110,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock_outline),
                     ),
-                    validator: (value) =>
-                        value == null || value.length < 6
-                            ? 'Mật khẩu phải từ 6 ký tự'
-                            : null,
+                    validator:
+                        (value) =>
+                            value == null || value.length < 6
+                                ? 'Mật khẩu phải từ 6 ký tự'
+                                : null,
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
@@ -123,9 +125,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock_reset),
                     ),
-                    validator: (value) => value != _passwordController.text
-                        ? 'Mật khẩu không khớp'
-                        : null,
+                    validator:
+                        (value) =>
+                            value != _passwordController.text
+                                ? 'Mật khẩu không khớp'
+                                : null,
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
@@ -133,13 +137,13 @@ class _RegisterPageState extends State<RegisterPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: _handleRegister,
-                      child: const Text('Đăng ký'),
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         backgroundColor: Colors.green,
                       ),
+                      child: const Text('Đăng ký'),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -147,7 +151,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const LoginPage(),
+                        ),
                       );
                     },
                     child: const Text('Đã có tài khoản? Đăng nhập'),
