@@ -5,6 +5,7 @@ import '/controllers/user_controller.dart';
 import 'package:get/get.dart';
 import '/models/transaction.dart';
 
+
 class AddTransactionPage extends StatefulWidget {
   final Transaction? transaction;
 
@@ -140,7 +141,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.transaction != null;
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
