@@ -41,10 +41,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
   Future<void> _updateAccount() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final newName = _newNameController.text.trim();
-    final currentPassword = _currentPasswordController.text.trim();
-    final newPassword = _newPasswordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
+    // final newName = _newNameController.text.trim();
+    // final currentPassword = _currentPasswordController.text.trim();
+    // final newPassword = _newPasswordController.text.trim();
+    // final confirmPassword = _confirmPasswordController.text.trim();
 
     setState(() {
       _isLoading = true;

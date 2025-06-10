@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quanlythuchi/Screens/Profile/edit_account_page.dart';
-import 'package:flutter_quanlythuchi/Screens/Profile/spending_limit_page.dart';
 import 'package:flutter_quanlythuchi/controllers/user_controller.dart';
 import 'package:flutter_quanlythuchi/models/user.dart';
 
@@ -28,15 +27,6 @@ class _ProfilePageState extends State<ProfilePage> {
       _currentUser = user;
       _isLoading = false;
     });
-  }
-
-  void _logout() async {
-    await _userController
-        .logout(); // Hàm logout bạn cần định nghĩa trong UserController
-    if (!mounted) return;
-    Navigator.of(
-      context,
-    ).pushReplacementNamed('/login'); // Điều hướng về trang login
   }
 
   @override
@@ -100,41 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         _loadUser(); // Reload dữ liệu sau khi quay lại
                       },
                     ),
-
-                    // Nút điều hướng: Giới hạn chi tiêu
-                    buildActionButton(
-                      context,
-                      icon: Icons.savings,
-                      label: "Đặt giới hạn chi tiêu tháng",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SpendingLimitPage(),
-                          ),
-                        );
-                      },
-                    ),
-
                     const Spacer(),
-
-                    // // Đăng xuất
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   child: ElevatedButton.icon(
-                    //     onPressed: _logout,
-                    //     icon: const Icon(Icons.logout),
-                    //     label: const Text("Đăng xuất"),
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: Colors.redAccent,
-                    //       foregroundColor: Colors.white,
-                    //       padding: const EdgeInsets.symmetric(vertical: 14),
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(12),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),

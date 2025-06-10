@@ -27,7 +27,6 @@ class _SpendingLimitPageState extends State<SpendingLimitPage> {
     final limit = await _userController.getLimit();
     setState(() {
       _currentLimit = limit;
-      // ❌ KHÔNG gán lại vào ô nhập nữa
     });
   }
 
@@ -59,12 +58,46 @@ class _SpendingLimitPageState extends State<SpendingLimitPage> {
     await _userController.setLimit(newLimit);
     setState(() {
       _currentLimit = newLimit;
-      _limitController.clear(); // ✅ Xóa giá trị
+      _limitController.clear();
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đã cập nhật giới hạn chi tiêu')),
     );
+  }
+
+  Future<void> _resetLimit() async {
+    final shouldReset = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Xác nhận'),
+            content: const Text(
+              'Bạn có chắc muốn đặt lại giới hạn chi tiêu về 0?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Hủy'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                child: const Text('Đặt lại'),
+              ),
+            ],
+          ),
+    );
+
+    if (shouldReset == true) {
+      await _userController.setLimit(0);
+      setState(() {
+        _currentLimit = 0;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã đặt lại giới hạn chi tiêu về 0')),
+      );
+    }
   }
 
   @override
@@ -131,6 +164,21 @@ class _SpendingLimitPageState extends State<SpendingLimitPage> {
               label: const Text('Lưu giới hạn'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                textStyle: const TextStyle(fontSize: 16),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: _resetLimit,
+              icon: const Icon(Icons.restore),
+              label: const Text('Đặt lại giới hạn'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade400,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
