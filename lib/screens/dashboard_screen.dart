@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quanlythuchi/Screens/Profile/spending_limit_page.dart';
 import '/Screens/transaction/add_transaction_page.dart';
 import '/Screens/transaction/transaction_list_page.dart';
 import 'package:flutter_quanlythuchi/Screens/Profile/profile_page.dart';
@@ -6,7 +7,6 @@ import '/Screens/thongke/report_screen.dart';
 import '/Screens/login.dart';
 import 'package:get/get.dart';
 import '../controllers/expense_controller.dart';
-import '../models/expense.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -60,75 +60,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blue.shade900,
+        title: const Text(
+          'Quản lý chi tiêu',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person, color: Colors.white, size: 30),
+            tooltip: 'Cài đặt cá nhân',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfilePage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.red, size: 30),
+            tooltip: 'Đăng xuất',
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => LoginPage()),
+                (route) => false,
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // Header
-              Container(
-                width: double.infinity,
-                color: Colors.blue.shade900,
-                padding: const EdgeInsets.all(16),
-                child: const Center(
-                  child: Text(
-                    'Quản lý chi tiêu',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
               const SizedBox(height: 16),
               const Text(
                 'Tháng 6',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-
-              // Thu - Chi - Dư (Đẹp hơn, có số liệu thực tế)
               _loading
                   ? const CircularProgressIndicator()
                   : Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 8,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _InfoTile(
-                                icon: Icons.arrow_downward,
-                                label: 'Thu',
-                                value: '${_currencyFormat.format(_totalIncome)} đ',
-                                color: Colors.green,
-                              ),
-                              _InfoTile(
-                                icon: Icons.arrow_upward,
-                                label: 'Chi',
-                                value: '${_currencyFormat.format(_totalExpense)} đ',
-                                color: Colors.red,
-                              ),
-                              _InfoTile(
-                                icon: Icons.account_balance_wallet,
-                                label: 'Dư',
-                                value: '${_currencyFormat.format(_balance)} đ',
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _InfoTile(
+                              icon: Icons.arrow_downward,
+                              label: 'Thu',
+                              value:
+                                  '${_currencyFormat.format(_totalIncome)} đ',
+                              color: Colors.green,
+                            ),
+                            _InfoTile(
+                              icon: Icons.arrow_upward,
+                              label: 'Chi',
+                              value:
+                                  '${_currencyFormat.format(_totalExpense)} đ',
+                              color: Colors.red,
+                            ),
+                            _InfoTile(
+                              icon: Icons.account_balance_wallet,
+                              label: 'Dư',
+                              value: '${_currencyFormat.format(_balance)} đ',
+                              color: Colors.blue,
+                            ),
+                          ],
                         ),
                       ),
                     ),
-
+                  ),
               const SizedBox(height: 30),
 
-              // Buttons
+              // Các nút chức năng
               Wrap(
                 spacing: 20,
                 runSpacing: 20,
@@ -137,11 +157,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildLargeButton(context, 'Thêm giao dịch'),
                   _buildLargeButton(context, 'Báo cáo thống kê'),
                   _buildLargeButton(context, 'Danh sách giao dịch'),
-                  _buildLargeButton(context, 'Cài đặt cá nhân'),
-                  _buildLargeButton(context, 'Đăng xuất'),
+                  _buildLargeButton(context, 'Đặt giới hạn chi tiêu'),
                 ],
               ),
-
               const SizedBox(height: 30),
             ],
           ),
@@ -167,25 +185,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               context,
               MaterialPageRoute(builder: (_) => ReportScreen()),
             );
+          } else if (title == 'Lịch sử giao dịch') {
+          } else if (title == 'Đặt giới hạn chi tiêu') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SpendingLimitPage()),
+            );
           } else if (title == 'Danh sách giao dịch') {
             await Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const TransactionListPage()),
             );
             _loadTotals(); // Cập nhật lại số liệu sau khi quay về
-          } else if (title == 'Cài đặt cá nhân') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProfilePage()),
-            );
-          } else if (title == 'Đăng xuất') {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => LoginPage()),
-              (route) => false,
-            );
-          } else {
-            // TODO: Xử lý các mục còn lại
           }
         },
         style: OutlinedButton.styleFrom(
@@ -226,8 +237,14 @@ class _InfoTile extends StatelessWidget {
           child: Icon(icon, color: color),
         ),
         const SizedBox(height: 8),
-        Text(label, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
-        Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: TextStyle(fontWeight: FontWeight.bold, color: color),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
       ],
     );
   }

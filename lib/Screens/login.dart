@@ -42,10 +42,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Đăng nhập'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Đăng nhập'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -79,8 +76,11 @@ class _LoginPageState extends State<LoginPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
                     ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Nhập tên đăng nhập' : null,
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Nhập tên đăng nhập'
+                                : null,
                   ),
                   const SizedBox(height: 15),
                   TextFormField(
@@ -91,8 +91,11 @@ class _LoginPageState extends State<LoginPage> {
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.lock),
                     ),
-                    validator: (value) =>
-                        value == null || value.isEmpty ? 'Nhập mật khẩu' : null,
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Nhập mật khẩu'
+                                : null,
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
@@ -100,13 +103,13 @@ class _LoginPageState extends State<LoginPage> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: _handleLogin,
-                      child: const Text('Đăng nhập'),
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                         backgroundColor: Colors.green,
                       ),
+                      child: const Text('Đăng nhập'),
                     ),
                   ),
                   const SizedBox(height: 15),

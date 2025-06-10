@@ -2,7 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '/controllers/expense_controller.dart';
-import '/models/expense.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -32,8 +31,9 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<Map<String, Map<String, double>>> _loadGroupedData() async {
     final expenses = await _expenseController.getUserExpenses();
     // Lọc theo tháng/năm
-    final filtered = expenses.where((e) =>
-        e.date.month == _selectedMonth && e.date.year == _selectedYear);
+    final filtered = expenses.where(
+      (e) => e.date.month == _selectedMonth && e.date.year == _selectedYear,
+    );
 
     Map<String, double> income = {};
     Map<String, double> expense = {};
@@ -45,28 +45,20 @@ class _ReportScreenState extends State<ReportScreen> {
         expense[tx.category] = (expense[tx.category] ?? 0) + tx.amount;
       }
     }
-    return {
-      'Thu': income,
-      'Chi': expense,
-    };
+    return {'Thu': income, 'Chi': expense};
   }
 
   List<DropdownMenuItem<int>> _monthItems() => List.generate(
-        12,
-        (i) => DropdownMenuItem(
-          value: i + 1,
-          child: Text('Tháng ${i + 1}'),
-        ),
-      );
+    12,
+    (i) => DropdownMenuItem(value: i + 1, child: Text('Tháng ${i + 1}')),
+  );
 
   List<DropdownMenuItem<int>> _yearItems() {
     int now = DateTime.now().year;
     return List.generate(
-        5,
-        (i) => DropdownMenuItem(
-              value: now - i,
-              child: Text('${now - i}'),
-            ));
+      5,
+      (i) => DropdownMenuItem(value: now - i, child: Text('${now - i}')),
+    );
   }
 
   @override
@@ -91,7 +83,10 @@ class _ReportScreenState extends State<ReportScreen> {
                 DropdownButton<int>(
                   value: _selectedMonth,
                   dropdownColor: Colors.white,
-                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                   items: _monthItems(),
                   onChanged: (v) {
                     if (v != null) setState(() => _selectedMonth = v);
@@ -101,7 +96,10 @@ class _ReportScreenState extends State<ReportScreen> {
                 DropdownButton<int>(
                   value: _selectedYear,
                   dropdownColor: Colors.white,
-                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
                   items: _yearItems(),
                   onChanged: (v) {
                     if (v != null) setState(() => _selectedYear = v);
@@ -137,7 +135,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       decoration: BoxDecoration(
-                        color: _selectedTab == 'Chi' ? Colors.red.shade400 : Colors.transparent,
+                        color:
+                            _selectedTab == 'Chi'
+                                ? Colors.red.shade400
+                                : Colors.transparent,
                         borderRadius: BorderRadius.circular(32),
                       ),
                       child: TextButton(
@@ -149,7 +150,10 @@ class _ReportScreenState extends State<ReportScreen> {
                         child: Text(
                           'Chi tiêu',
                           style: TextStyle(
-                            color: _selectedTab == 'Chi' ? Colors.white : Colors.black87,
+                            color:
+                                _selectedTab == 'Chi'
+                                    ? Colors.white
+                                    : Colors.black87,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -160,7 +164,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       decoration: BoxDecoration(
-                        color: _selectedTab == 'Thu' ? Colors.green.shade400 : Colors.transparent,
+                        color:
+                            _selectedTab == 'Thu'
+                                ? Colors.green.shade400
+                                : Colors.transparent,
                         borderRadius: BorderRadius.circular(32),
                       ),
                       child: TextButton(
@@ -172,7 +179,10 @@ class _ReportScreenState extends State<ReportScreen> {
                         child: Text(
                           'Thu nhập',
                           style: TextStyle(
-                            color: _selectedTab == 'Thu' ? Colors.white : Colors.black87,
+                            color:
+                                _selectedTab == 'Thu'
+                                    ? Colors.white
+                                    : Colors.black87,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -195,7 +205,10 @@ class _ReportScreenState extends State<ReportScreen> {
                 final expenseData = snapshot.data!['Chi']!;
 
                 return ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
                   children: [
                     if (_selectedTab == 'Chi')
                       _buildSection(
@@ -266,7 +279,11 @@ class _ReportScreenState extends State<ReportScreen> {
                   const SizedBox(width: 12),
                   Text(
                     title,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
                   ),
                   const Spacer(),
                   Text(
@@ -286,20 +303,22 @@ class _ReportScreenState extends State<ReportScreen> {
                   PieChartData(
                     sectionsSpace: 2,
                     centerSpaceRadius: 40,
-                    sections: data.entries.map((entry) {
-                      final percent = (entry.value / total * 100).toStringAsFixed(1);
-                      return PieChartSectionData(
-                        value: entry.value,
-                        title: '$percent%',
-                        color: colorMap[entry.key] ?? Colors.grey,
-                        radius: 70,
-                        titleStyle: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      );
-                    }).toList(),
+                    sections:
+                        data.entries.map((entry) {
+                          final percent = (entry.value / total * 100)
+                              .toStringAsFixed(1);
+                          return PieChartSectionData(
+                            value: entry.value,
+                            title: '$percent%',
+                            color: colorMap[entry.key] ?? Colors.grey,
+                            radius: 70,
+                            titleStyle: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          );
+                        }).toList(),
                   ),
                 ),
               ),
@@ -308,25 +327,36 @@ class _ReportScreenState extends State<ReportScreen> {
                 'Chi tiết danh mục',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
-              ...data.entries.map((entry) => Card(
-                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: (colorMap[entry.key] ?? Colors.grey).withOpacity(0.8),
-                        child: Icon(Icons.label, color: Colors.white, size: 20),
-                      ),
-                      title: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w500)),
-                      trailing: Text(
-                        currencyFormat.format(entry.value),
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ...data.entries.map(
+                (entry) => Card(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 0,
+                  ),
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: (colorMap[entry.key] ?? Colors.grey)
+                          .withOpacity(0.8),
+                      child: Icon(Icons.label, color: Colors.white, size: 20),
+                    ),
+                    title: Text(
+                      entry.key,
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    trailing: Text(
+                      currencyFormat.format(entry.value),
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

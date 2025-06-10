@@ -4,6 +4,7 @@ import '../db/database_helper.dart';
 import 'package:get/get.dart';
 import 'controllers/expense_controller.dart';
 import 'controllers/user_controller.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,15 +22,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Finance App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-      ),
-      home: LoginPage(),
-      // home: LoginPage(), // 👉 Bỏ comment dòng này nếu LoginPage đã hoạt động tốt
-    );
+  title: 'Finance App',
+  debugShowCheckedModeBanner: false,
+  theme: ThemeData(
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+    useMaterial3: true,
+  ),
+  home: LoginPage(),
+  localizationsDelegates: const [
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  supportedLocales: [
+    Locale('vi', 'VN'),
+    Locale('en', 'US'),
+  ],
+);
   }
 }
 

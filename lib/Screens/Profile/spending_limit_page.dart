@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quanlythuchi/controllers/user_controller.dart';
 import 'package:intl/intl.dart';
 
 class SpendingLimitPage extends StatefulWidget {
@@ -9,167 +10,134 @@ class SpendingLimitPage extends StatefulWidget {
 }
 
 class _SpendingLimitPageState extends State<SpendingLimitPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
+  final TextEditingController _limitController = TextEditingController();
+  final UserController _userController = UserController();
 
-  DateTime? _selectedMonth;
-  final List<Map<String, dynamic>> _limits = [];
+  double? _currentLimit;
 
-  void _pickMonth() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: DateTime(now.year - 1),
-      lastDate: DateTime(now.year + 2),
-      helpText: "Chọn tháng",
-      fieldLabelText: "Tháng/Năm",
-      builder: (context, child) {
-        return Theme(data: ThemeData.light(), child: child!);
-      },
-    );
+  final currencyFormatter = NumberFormat("#,##0", "vi_VN");
 
-    if (picked != null) {
-      setState(() {
-        _selectedMonth = DateTime(picked.year, picked.month);
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadLimit();
   }
 
-  void _addLimit() {
-    if (_formKey.currentState!.validate() && _selectedMonth != null) {
-      String monthKey = DateFormat('MM/yyyy').format(_selectedMonth!);
-
-      bool alreadyExists = _limits.any((entry) => entry['month'] == monthKey);
-
-      if (alreadyExists) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Tháng này đã được đặt hạn mức")),
-        );
-        return;
-      }
-
-      if (_limits.length >= 13) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Chỉ được đặt hạn mức tối đa cho 13 tháng"),
-          ),
-        );
-        return;
-      }
-
-      setState(() {
-        _limits.add({
-          'month': monthKey,
-          'amount': double.parse(_amountController.text),
-        });
-        _amountController.clear();
-        _selectedMonth = null;
-      });
-    }
-  }
-
-  void _removeLimit(int index) {
+  Future<void> _loadLimit() async {
+    final limit = await _userController.getLimit();
     setState(() {
-      _limits.removeAt(index);
+      _currentLimit = limit;
+      // ❌ KHÔNG gán lại vào ô nhập nữa
     });
   }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
+  Future<void> _saveLimit() async {
+    final input = _limitController.text.trim();
+
+    if (input.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập số tiền giới hạn')),
+      );
+      return;
+    }
+
+    final amount = double.tryParse(input);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')),
+      );
+      return;
+    }
+
+    double newLimit;
+    if (_currentLimit != null) {
+      newLimit = _currentLimit! + amount;
+    } else {
+      newLimit = amount;
+    }
+
+    await _userController.setLimit(newLimit);
+    setState(() {
+      _currentLimit = newLimit;
+      _limitController.clear(); // ✅ Xóa giá trị
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Đã cập nhật giới hạn chi tiêu')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Giới hạn chi tiêu tháng"),
+        title: const Text("Đặt giới hạn chi tiêu"),
         backgroundColor: Colors.green.shade600,
         foregroundColor: Colors.white,
+        centerTitle: true,
+        elevation: 0,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: _amountController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            labelText: "Hạn mức (VNĐ)",
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Vui lòng nhập hạn mức";
-                            }
-                            if (double.tryParse(value) == null ||
-                                double.parse(value) <= 0) {
-                              return "Hạn mức không hợp lệ";
-                            }
-                            return null;
-                          },
-                        ),
+            if (_currentLimit != null)
+              Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.green.shade200),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.account_balance_wallet,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Giới hạn hiện tại: ${currencyFormatter.format(_currentLimit)} VND',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
                       ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: _pickMonth,
-                        child: const Text("Chọn tháng"),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      if (_selectedMonth != null)
-                        Text(
-                          "Tháng đã chọn: ${DateFormat('MM/yyyy').format(_selectedMonth!)}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: _addLimit,
-                        child: const Text("Thêm"),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
+              ),
+            TextField(
+              controller: _limitController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Nhập giới hạn mới',
+                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child:
-                  _limits.isEmpty
-                      ? const Center(child: Text("Chưa có hạn mức nào"))
-                      : ListView.builder(
-                        itemCount: _limits.length,
-                        itemBuilder: (context, index) {
-                          final item = _limits[index];
-                          return Card(
-                            child: ListTile(
-                              title: Text("Tháng ${item['month']}"),
-                              subtitle: Text(
-                                "Hạn mức: ${item['amount'].toStringAsFixed(0)} VNĐ",
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () => _removeLimit(index),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+            ElevatedButton.icon(
+              onPressed: _saveLimit,
+              icon: const Icon(Icons.save),
+              label: const Text('Lưu giới hạn'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade600,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
+                textStyle: const TextStyle(fontSize: 16),
+              ),
             ),
           ],
         ),

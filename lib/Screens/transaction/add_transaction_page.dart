@@ -5,8 +5,9 @@ import '/controllers/user_controller.dart';
 import 'package:get/get.dart';
 import '/models/transaction.dart';
 
+
 class AddTransactionPage extends StatefulWidget {
-  final Transaction? transaction;
+  final Transaction? transaction;// Thêm tham số transaction để chỉnh sửa
 
   const AddTransactionPage({super.key, this.transaction});
 
@@ -15,8 +16,8 @@ class AddTransactionPage extends StatefulWidget {
 }
 
 class _AddTransactionPageState extends State<AddTransactionPage> {
-  final expenseController = Get.find<ExpenseController>();
-  final userController = Get.find<UserController>();
+  final expenseController = Get.find<ExpenseController>();// Sử dụng GetX để lấy ExpenseController
+  final userController = Get.find<UserController>();// Sử dụng GetX để lấy UserController
   double? _amount;
   String _note = '';
 
@@ -25,27 +26,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String _selectedCategory = 'Ăn uống';
 
   // Danh mục riêng cho Thu và Chi
-  final List<String> _incomeCategories = [
-    'Lương',
-    'Thưởng',
-    'Đầu tư',
-    'Khác',
-  ];
-  final List<String> _expenseCategories = [
-    'Ăn uống',
-    'Di chuyển',
-    'Giải trí',
-    'Mua sắm',
-    'Khác',
+  final List<String> _incomeCategories = ['Lương', 'Thưởng', 'Đầu tư', 'Khác'];
+  final List<String> _expenseCategories = ['Ăn uống','Di chuyển','Giải trí','Mua sắm','Khác',
   ];
 
   List<String> get _categories =>
-      _transactionType == 'Thu' ? _incomeCategories : _expenseCategories;
+      _transactionType == 'Thu' ? _incomeCategories : _expenseCategories;// Lấy danh mục dựa trên loại giao dịch
 
   @override
   void initState() {
     super.initState();
-    final tx = widget.transaction;
+    final tx = widget.transaction;// Lấy giao dịch nếu có để chỉnh sửa
+    // Nếu có giao dịch, điền thông tin vào các trường
     if (tx != null) {
       _amount = tx.amount;
       _note = tx.note;
@@ -70,16 +62,35 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       setState(() => _selectedDate = picked);
     }
   }
-
   Future<void> _saveTransaction() async {
     final amount = _amount;
     final note = _note;
 
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập số tiền hợp lệ')),
+      );
       return;
+    }
+
+    if (_transactionType == 'Chi') {
+      final userController = UserController(); // ✅ Sửa tại đây
+      final spendingLimit = await userController.getLimit(); // ✅ Sửa tại đây
+
+      if (spendingLimit != null) {
+        final currentSpent = await expenseController.getMonthlyExpenseTotal();
+
+        if ((currentSpent + amount) > spendingLimit) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Vượt quá giới hạn chi tiêu tháng! Đã dùng: ${currentSpent.toStringAsFixed(0)} / Giới hạn: ${spendingLimit.toStringAsFixed(0)}',
+              ),
+            ),
+          );
+          return;
+        }
+      }
     }
 
     try {
@@ -92,16 +103,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       );
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi lưu giao dịch: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi lưu giao dịch: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.transaction != null;
-    final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -116,7 +126,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           child: Card(
             elevation: 6,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(22),
               child: Column(
@@ -128,95 +140,112 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     decoration: InputDecoration(
                       labelText: 'Số tiền',
                       prefixIcon: Icon(Icons.attach_money, color: Colors.teal),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                     keyboardType: TextInputType.number,
                     onChanged: (value) => _amount = double.tryParse(value),
                   ),
                   const SizedBox(height: 16),
                   // Loại giao dịch
-                  Row(
-                    children: [
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _transactionType,
-                          decoration: InputDecoration(
-                            labelText: 'Loại',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: Icon(
-                              _transactionType == 'Thu' ? Icons.trending_up : Icons.trending_down,
-                              color: _transactionType == 'Thu' ? Colors.green : Colors.red,
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                          ),
-                          items: [
-                            DropdownMenuItem(
-                              value: 'Thu',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.trending_up, color: Colors.green),
-                                  const SizedBox(width: 8),
-                                  Text('Thu nhập'),
-                                ],
-                              ),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Chi',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.trending_down, color: Colors.red),
-                                  const SizedBox(width: 8),
-                                  Text('Chi tiêu'),
-                                ],
-                              ),
-                            ),
-                          ],
-                          onChanged: (value) {
-                            if (value != null) {
-                              setState(() {
-                                _transactionType = value;
-                                _selectedCategory = _categories.first;
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedCategory,
-                          decoration: InputDecoration(
-                            labelText: 'Danh mục',
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                            prefixIcon: Icon(Icons.category, color: Colors.deepPurple),
-                            filled: true,
-                            fillColor: Colors.grey[50],
-                          ),
-                          items: _categories
-                              .map((cat) => DropdownMenuItem(
-                                    value: cat,
-                                    child: Text(cat),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) setState(() => _selectedCategory = value);
-                          },
-                        ),
-                      ),
-                    ],
+                DropdownButtonFormField<String>(
+                  value: _transactionType,
+                  decoration: InputDecoration(
+                    labelText: 'Loại',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: Icon(
+                      _transactionType == 'Thu'
+                          ? Icons.trending_up
+                          : Icons.trending_down,
+                      color: _transactionType == 'Thu'
+                          ? Colors.green
+                          : Colors.red,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
                   ),
-                  const SizedBox(height: 16),
+                  items: [
+                    DropdownMenuItem(
+                      value: 'Thu',
+                      child: Row(
+                        children: [
+                          Icon(Icons.trending_up, color: Colors.green),
+                          const SizedBox(width: 8),
+                          Text('Thu nhập'),
+                        ],
+                      ),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Chi',
+                      child: Row(
+                        children: [
+                          Icon(Icons.trending_down, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text('Chi tiêu'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _transactionType = value;
+                        _selectedCategory = _categories.first;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  decoration: InputDecoration(
+                    labelText: 'Danh mục',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.category,
+                      color: Colors.deepPurple,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                  ),
+                  items: _categories
+                      .map(
+                        (cat) => DropdownMenuItem(
+                          value: cat,
+                          child: Text(cat),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _selectedCategory = value);
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
                   // Ghi chú
                   TextFormField(
                     initialValue: _note,
                     decoration: InputDecoration(
                       labelText: 'Ghi chú',
-                      prefixIcon: Icon(Icons.note_alt, color: Colors.amber[800]),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      prefixIcon: Icon(
+                        Icons.note_alt,
+                        color: Colors.amber[800],
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
@@ -229,7 +258,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     borderRadius: BorderRadius.circular(12),
                     onTap: _selectDate,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 12,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.grey[50],
                         border: Border.all(color: Colors.grey.shade300),
@@ -241,7 +273,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                           const SizedBox(width: 12),
                           Text(
                             'Ngày: ${DateFormat('dd/MM/yyyy').format(_selectedDate)}',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                           const Spacer(),
                           Text(
@@ -267,8 +302,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.teal,
                         foregroundColor: Colors.white,
-                        textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        textStyle: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         elevation: 2,
                       ),
                     ),
