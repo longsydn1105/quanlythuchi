@@ -58,66 +58,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue.shade900,
-        title: const Text(
-          'Quản lý chi tiêu',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey[100],
+    appBar: AppBar(
+      backgroundColor: Colors.blue.shade900,
+      title: const Text(
+        'Quản lý chi tiêu',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white, size: 30),
-            tooltip: 'Cài đặt cá nhân',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ProfilePage()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red, size: 30),
-            tooltip: 'Đăng xuất',
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => LoginPage()),
-                (route) => false,
-              );
-            },
-          ),
-        ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-              const Text(
-                'Tháng 6',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              _loading
-                  ? const CircularProgressIndicator()
-                  : Padding(
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.person, color: Colors.white, size: 30),
+          tooltip: 'Cài đặt cá nhân',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProfilePage()),
+            );
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.logout, color: Colors.red, size: 30),
+          tooltip: 'Đăng xuất',
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => LoginPage()),
+              (route) => false,
+            );
+          },
+        ),
+      ],
+    ),
+    body: SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              'Tổng quan tháng 6',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            _loading
+                ? const CircularProgressIndicator()
+                : Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Card(
-                      elevation: 4,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                          borderRadius: BorderRadius.circular(20)),
+                      elevation: 5,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 20,
-                          horizontal: 8,
-                        ),
+                        padding: const EdgeInsets.all(16),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -146,46 +143,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
-              const SizedBox(height: 30),
-
-              // Các nút chức năng
-              Wrap(
-                spacing: 20,
-                runSpacing: 20,
-                alignment: WrapAlignment.center,
-                children: [
-                  _buildLargeButton(context, 'Thêm giao dịch'),
-                  _buildLargeButton(context, 'Báo cáo thống kê'),
-                  _buildLargeButton(context, 'Danh sách giao dịch'),
-                  _buildLargeButton(context, 'Đặt giới hạn chi tiêu'),
-                ],
-              ),
-              const SizedBox(height: 30),
-            ],
-          ),
+            const SizedBox(height: 30),
+            Wrap(
+              spacing: 20,
+              runSpacing: 20,
+              alignment: WrapAlignment.center,
+              children: [
+                _buildLargeButton(context, 'Thêm giao dịch', Icons.add),
+                _buildLargeButton(context, 'Báo cáo thống kê', Icons.bar_chart),
+                _buildLargeButton(context, 'Danh sách giao dịch', Icons.list),
+                _buildLargeButton(
+                    context, 'Đặt giới hạn chi tiêu', Icons.lock_clock),
+              ],
+            ),
+            const SizedBox(height: 30),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildLargeButton(BuildContext context, String title) {
-    return SizedBox(
-      width: 400,
-      height: 150,
-      child: OutlinedButton(
-        onPressed: () async {
+
+  Widget _buildLargeButton(BuildContext context, String title, IconData icon) {
+  return SizedBox(
+    width: 400,
+    height: 150,
+    child: Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 4,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () async {
           if (title == 'Thêm giao dịch') {
             await Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const AddTransactionPage()),
             );
-            _loadTotals(); // Cập nhật lại số liệu sau khi thêm
+            _loadTotals();
           } else if (title == 'Báo cáo thống kê') {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => ReportScreen()),
             );
           } else if (title == 'Lịch sử giao dịch') {
+            // Placeholder
           } else if (title == 'Đặt giới hạn chi tiêu') {
             Navigator.push(
               context,
@@ -196,23 +198,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               context,
               MaterialPageRoute(builder: (_) => const TransactionListPage()),
             );
-            _loadTotals(); // Cập nhật lại số liệu sau khi quay về
+            _loadTotals();
           }
         },
-        style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 40, color: Colors.blue.shade800),
+              const SizedBox(height: 10),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
-          side: const BorderSide(color: Colors.black),
-        ),
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 16),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 }
 
 class _InfoTile extends StatelessWidget {

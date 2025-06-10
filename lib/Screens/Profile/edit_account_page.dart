@@ -15,11 +15,9 @@ class _EditAccountPageState extends State<EditAccountPage> {
   final UserController _userController = UserController();
 
   final TextEditingController _newNameController = TextEditingController();
-  final TextEditingController _currentPasswordController =
-      TextEditingController();
+  final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
   User? _currentUser;
