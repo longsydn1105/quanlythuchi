@@ -29,6 +29,33 @@ class _TransactionListPageState extends State<TransactionListPage> {
     setState(() {}); // Để reload lại danh sách khi quay về
   }
 
+  Future<void> _deleteExpense(int expenseId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: const Text('Bạn có chắc chắn muốn xóa giao dịch này?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      await _expenseController.deleteExpense(expenseId);
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã xóa giao dịch')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,13 +170,23 @@ class _TransactionListPageState extends State<TransactionListPage> {
                                 ],
                               ),
                               isThreeLine: true,
-                              trailing: Text(
-                                '$formattedAmount đ',
-                                style: TextStyle(
-                                  color: tx.type == 'Thu' ? Colors.green : Colors.red,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '$formattedAmount đ',
+                                    style: TextStyle(
+                                      color: tx.type == 'Thu' ? Colors.green : Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    tooltip: 'Xóa',
+                                    onPressed: () => _deleteExpense(tx.id!),
+                                  ),
+                                ],
                               ),
                             ),
                           );

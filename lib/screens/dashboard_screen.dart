@@ -136,7 +136,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   _buildLargeButton(context, 'Thêm giao dịch'),
                   _buildLargeButton(context, 'Báo cáo thống kê'),
-                  _buildLargeButton(context, 'Danh sách giao dịch'),
+                  _buildLargeButton(context, 'Lịch sử giao dịch'),
                   _buildLargeButton(context, 'Cài đặt cá nhân'),
                   _buildLargeButton(context, 'Đăng xuất'),
                 ],
@@ -167,7 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               context,
               MaterialPageRoute(builder: (_) => ReportScreen()),
             );
-          } else if (title == 'Danh sách giao dịch') {
+          } else if (title == 'Lịch sử giao dịch') {
             await Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const TransactionListPage()),
